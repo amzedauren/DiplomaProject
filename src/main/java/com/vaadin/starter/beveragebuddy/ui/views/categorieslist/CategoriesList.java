@@ -37,6 +37,7 @@ import com.vaadin.starter.beveragebuddy.backend.Review;
 import com.vaadin.starter.beveragebuddy.backend.ReviewService;
 import com.vaadin.starter.beveragebuddy.ui.MainLayout;
 import com.vaadin.starter.beveragebuddy.ui.common.AbstractEditorDialog;
+import com.vaadin.starter.beveragebuddy.ui.views.charts.DimplomaCharts;
 
 /**
  * Displays the list of available categories, with a search filter as well as
@@ -56,10 +57,11 @@ public class CategoriesList extends VerticalLayout {
   public CategoriesList() {
     initView();
 
-    addSearchBar();
-    addContent();
-
-    updateView();
+    add(DimplomaCharts.getDemoChart());
+//    addSearchBar();
+//    addContent();
+//
+//    updateView();
   }
 
   private void initView() {
@@ -84,6 +86,7 @@ public class CategoriesList extends VerticalLayout {
 
     viewToolbar.add(searchField, newButton);
     add(viewToolbar);
+
   }
 
   private void addContent() {
