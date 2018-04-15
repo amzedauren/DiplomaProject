@@ -38,49 +38,49 @@ import com.vaadin.starter.beveragebuddy.ui.views.reviewslist.ReviewsList;
 @HtmlImport("frontend://styles/shared-styles.html")
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
 public class MainLayout extends Div
-        implements RouterLayout, AfterNavigationObserver, PageConfigurator {
+  implements RouterLayout, AfterNavigationObserver, PageConfigurator {
 
-    private static final String ACTIVE_ITEM_STYLE = "main-layout__nav-item--selected";
-    private RouterLink categories;
-    private RouterLink reviews;
+  private static final String ACTIVE_ITEM_STYLE = "main-layout__nav-item--selected";
+  private RouterLink categories;
+  private RouterLink reviews;
 
-    public MainLayout() {
-        H2 title = new H2("Beverage Buddy");
-        title.addClassName("main-layout__title");
+  public MainLayout() {
+    H2 title = new H2("Beverage Buddy");
+    title.addClassName("main-layout__title");
 
-        reviews = new RouterLink(null, ReviewsList.class);
-        reviews.add(new Icon(VaadinIcons.LIST), new Text("Reviews"));
-        reviews.addClassName("main-layout__nav-item");
+    reviews = new RouterLink(null, ReviewsList.class);
+    reviews.add(new Icon(VaadinIcons.LIST), new Text("Reviews"));
+    reviews.addClassName("main-layout__nav-item");
 
-        categories = new RouterLink(null, CategoriesList.class);
-        categories.add(new Icon(VaadinIcons.ARCHIVES), new Text("Categories"));
-        categories.addClassName("main-layout__nav-item");
+    categories = new RouterLink(null, CategoriesList.class);
+    categories.add(new Icon(VaadinIcons.ARCHIVES), new Text("Categories"));
+    categories.addClassName("main-layout__nav-item");
 
-        Div navigation = new Div(reviews, categories);
-        navigation.addClassName("main-layout__nav");
+    Div navigation = new Div(reviews, categories);
+    navigation.addClassName("main-layout__nav");
 
-        Div header = new Div(title, navigation);
-        header.addClassName("main-layout__header");
-        add(header);
+    Div header = new Div(title, navigation);
+    header.addClassName("main-layout__header");
+    add(header);
 
-        addClassName("main-layout");
-    }
+    addClassName("main-layout");
+  }
 
-    @Override
-    public void afterNavigation(AfterNavigationEvent event) {
-        // updating the active menu item based on if either of views is active
-        // (note that this is triggered even for the error view)
-        String segment = event.getLocation().getFirstSegment();
-        boolean reviewsActive = segment.equals(reviews.getHref());
-        boolean categoriesActive = segment.equals(categories.getHref());
+  @Override
+  public void afterNavigation(AfterNavigationEvent event) {
+    // updating the active menu item based on if either of views is active
+    // (note that this is triggered even for the error view)
+    String segment = event.getLocation().getFirstSegment();
+    boolean reviewsActive = segment.equals(reviews.getHref());
+    boolean categoriesActive = segment.equals(categories.getHref());
 
-        reviews.setClassName(ACTIVE_ITEM_STYLE, reviewsActive);
-        categories.setClassName(ACTIVE_ITEM_STYLE, categoriesActive);
-    }
+    reviews.setClassName(ACTIVE_ITEM_STYLE, reviewsActive);
+    categories.setClassName(ACTIVE_ITEM_STYLE, categoriesActive);
+  }
 
-    @Override
-    public void configurePage(InitialPageSettings settings) {
-        settings.addMetaTag("apple-mobile-web-app-capable", "yes");
-        settings.addMetaTag("apple-mobile-web-app-status-bar-style", "black");
-    }
+  @Override
+  public void configurePage(InitialPageSettings settings) {
+    settings.addMetaTag("apple-mobile-web-app-capable", "yes");
+    settings.addMetaTag("apple-mobile-web-app-status-bar-style", "black");
+  }
 }

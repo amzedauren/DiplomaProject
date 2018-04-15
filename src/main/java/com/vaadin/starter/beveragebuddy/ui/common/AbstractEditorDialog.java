@@ -35,7 +35,7 @@ import com.vaadin.flow.shared.Registration;
 
 /**
  * Abstract base class for dialogs adding, editing or deleting items.
- *
+ * <p>
  * Subclasses are expected to
  * <ul>
  * <li>add, during construction, the needed UI components to
@@ -46,203 +46,189 @@ import com.vaadin.flow.shared.Registration;
  * {@link #openConfirmationDialog(String, String, String)}.</li>
  * </ul>
  *
- * @param <T>
- *            the type of the item to be added, edited or deleted
+ * @param <T> the type of the item to be added, edited or deleted
  */
 public abstract class AbstractEditorDialog<T extends Serializable>
-        extends Dialog {
+  extends Dialog {
 
-    /**
-     * The operations supported by this dialog. Delete is enabled when editing
-     * an already existing item.
-     */
-    public enum Operation {
-        ADD("New", "add", false),
-        EDIT("Edit", "edit", true);
+  private final H3 titleField = new H3();
+  private final Button saveButton = new Button("Save");
+  private final Button cancelButton = new Button("Cancel");
+  private final Button deleteButton = new Button("Delete");
+  private final FormLayout formLayout = new FormLayout();
+  private final HorizontalLayout buttonBar = new HorizontalLayout(saveButton,
+    cancelButton, deleteButton);
+  private final ConfirmationDialog<T> confirmationDialog = new ConfirmationDialog<>();
+  private final String itemType;
+  private final BiConsumer<T, Operation> itemSaver;
+  private final Consumer<T> itemDeleter;
+  private Registration registrationForSave;
+  private Binder<T> binder = new Binder<>();
+  private T currentItem;
+  /**
+   * Constructs a new instance.
+   *
+   * @param itemType    The readable name of the item type
+   * @param itemSaver   Callback to save the edited item
+   * @param itemDeleter Callback to delete the edited item
+   */
+  protected AbstractEditorDialog(String itemType,
+                                 BiConsumer<T, Operation> itemSaver, Consumer<T> itemDeleter) {
+    this.itemType = itemType;
+    this.itemSaver = itemSaver;
+    this.itemDeleter = itemDeleter;
 
-        private final String nameInTitle;
-        private final String nameInText;
-        private final boolean deleteEnabled;
+    initTitle();
+    initFormLayout();
+    initButtonBar();
+    setCloseOnEsc(true);
+    setCloseOnOutsideClick(false);
+  }
 
-        Operation(String nameInTitle, String nameInText,
-                boolean deleteEnabled) {
-            this.nameInTitle = nameInTitle;
-            this.nameInText = nameInText;
-            this.deleteEnabled = deleteEnabled;
-        }
+  private void initTitle() {
+    add(titleField);
+  }
 
-        public String getNameInTitle() {
-            return nameInTitle;
-        }
+  private void initFormLayout() {
+    formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1),
+      new FormLayout.ResponsiveStep("25em", 2));
+    Div div = new Div(formLayout);
+    div.addClassName("has-padding");
+    add(div);
+  }
 
-        public String getNameInText() {
-            return nameInText;
-        }
+  private void initButtonBar() {
+    saveButton.setAutofocus(true);
+    saveButton.getElement().setAttribute("theme", "primary");
+    cancelButton.addClickListener(e -> close());
+    deleteButton.addClickListener(e -> deleteClicked());
+    deleteButton.getElement().setAttribute("theme", "error");
+    buttonBar.setClassName("buttons");
+    buttonBar.setSpacing(true);
+    add(buttonBar);
+  }
 
-        public boolean isDeleteEnabled() {
-            return deleteEnabled;
-        }
+  /**
+   * Gets the form layout, where additional components can be added for
+   * displaying or editing the item's properties.
+   *
+   * @return the form layout
+   */
+  protected final FormLayout getFormLayout() {
+    return formLayout;
+  }
+
+  /**
+   * Gets the binder.
+   *
+   * @return the binder
+   */
+  protected final Binder<T> getBinder() {
+    return binder;
+  }
+
+  /**
+   * Gets the item currently being edited.
+   *
+   * @return the item currently being edited
+   */
+  protected final T getCurrentItem() {
+    return currentItem;
+  }
+
+  /**
+   * Opens the given item for editing in the dialog.
+   *
+   * @param item      The item to edit; it may be an existing or a newly created
+   *                  instance
+   * @param operation The operation being performed on the item
+   */
+  public final void open(T item, Operation operation) {
+    currentItem = item;
+    titleField.setText(operation.getNameInTitle() + " " + itemType);
+    if (registrationForSave != null) {
+      registrationForSave.remove();
+    }
+    registrationForSave = saveButton
+      .addClickListener(e -> saveClicked(operation));
+    binder.readBean(currentItem);
+
+    deleteButton.setEnabled(operation.isDeleteEnabled());
+    open();
+  }
+
+  private void saveClicked(Operation operation) {
+    boolean isValid = binder.writeBeanIfValid(currentItem);
+
+    if (isValid) {
+      itemSaver.accept(currentItem, operation);
+      close();
+    } else {
+      BinderValidationStatus<T> status = binder.validate();
+    }
+  }
+
+  private void deleteClicked() {
+    if (confirmationDialog.getElement().getParent() == null) {
+      getUI().ifPresent(ui -> ui.add(confirmationDialog));
+    }
+    confirmDelete();
+  }
+
+  protected abstract void confirmDelete();
+
+  /**
+   * Opens the confirmation dialog before deleting the current item.
+   * <p>
+   * The dialog will display the given title and message(s), then call
+   * {@link #deleteConfirmed(Serializable)} if the Delete button is clicked.
+   *
+   * @param title             The title text
+   * @param message           Detail message (optional, may be empty)
+   * @param additionalMessage Additional message (optional, may be empty)
+   */
+  protected final void openConfirmationDialog(String title, String message,
+                                              String additionalMessage) {
+    close();
+    confirmationDialog.open(title, message, additionalMessage, "Delete",
+      true, getCurrentItem(), this::deleteConfirmed,
+      this::open);
+  }
+
+  private void deleteConfirmed(T item) {
+    itemDeleter.accept(item);
+    close();
+  }
+
+  /**
+   * The operations supported by this dialog. Delete is enabled when editing
+   * an already existing item.
+   */
+  public enum Operation {
+    ADD("New", "add", false),
+    EDIT("Edit", "edit", true);
+
+    private final String nameInTitle;
+    private final String nameInText;
+    private final boolean deleteEnabled;
+
+    Operation(String nameInTitle, String nameInText,
+              boolean deleteEnabled) {
+      this.nameInTitle = nameInTitle;
+      this.nameInText = nameInText;
+      this.deleteEnabled = deleteEnabled;
     }
 
-    private final H3 titleField = new H3();
-    private final Button saveButton = new Button("Save");
-    private final Button cancelButton = new Button("Cancel");
-    private final Button deleteButton = new Button("Delete");
-    private Registration registrationForSave;
-
-    private final FormLayout formLayout = new FormLayout();
-    private final HorizontalLayout buttonBar = new HorizontalLayout(saveButton,
-            cancelButton, deleteButton);
-
-    private Binder<T> binder = new Binder<>();
-    private T currentItem;
-
-    private final ConfirmationDialog<T> confirmationDialog = new ConfirmationDialog<>();
-
-    private final String itemType;
-    private final BiConsumer<T, Operation> itemSaver;
-    private final Consumer<T> itemDeleter;
-
-    /**
-     * Constructs a new instance.
-     *
-     * @param itemType
-     *            The readable name of the item type
-     * @param itemSaver
-     *            Callback to save the edited item
-     * @param itemDeleter
-     *            Callback to delete the edited item
-     */
-    protected AbstractEditorDialog(String itemType,
-            BiConsumer<T, Operation> itemSaver, Consumer<T> itemDeleter) {
-        this.itemType = itemType;
-        this.itemSaver = itemSaver;
-        this.itemDeleter = itemDeleter;
-
-        initTitle();
-        initFormLayout();
-        initButtonBar();
-        setCloseOnEsc(true);
-        setCloseOnOutsideClick(false);
+    public String getNameInTitle() {
+      return nameInTitle;
     }
 
-    private void initTitle() {
-        add(titleField);
+    public String getNameInText() {
+      return nameInText;
     }
 
-    private void initFormLayout() {
-        formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1),
-                new FormLayout.ResponsiveStep("25em", 2));
-        Div div = new Div(formLayout);
-        div.addClassName("has-padding");
-        add(div);
+    public boolean isDeleteEnabled() {
+      return deleteEnabled;
     }
-
-    private void initButtonBar() {
-        saveButton.setAutofocus(true);
-        saveButton.getElement().setAttribute("theme", "primary");
-        cancelButton.addClickListener(e -> close());
-        deleteButton.addClickListener(e -> deleteClicked());
-        deleteButton.getElement().setAttribute("theme", "error");
-        buttonBar.setClassName("buttons");
-        buttonBar.setSpacing(true);
-        add(buttonBar);
-    }
-
-    /**
-     * Gets the form layout, where additional components can be added for
-     * displaying or editing the item's properties.
-     *
-     * @return the form layout
-     */
-    protected final FormLayout getFormLayout() {
-        return formLayout;
-    }
-
-    /**
-     * Gets the binder.
-     *
-     * @return the binder
-     */
-    protected final Binder<T> getBinder() {
-        return binder;
-    }
-
-    /**
-     * Gets the item currently being edited.
-     *
-     * @return the item currently being edited
-     */
-    protected final T getCurrentItem() {
-        return currentItem;
-    }
-
-    /**
-     * Opens the given item for editing in the dialog.
-     *
-     * @param item
-     *            The item to edit; it may be an existing or a newly created
-     *            instance
-     * @param operation
-     *            The operation being performed on the item
-     */
-    public final void open(T item, Operation operation) {
-        currentItem = item;
-        titleField.setText(operation.getNameInTitle() + " " + itemType);
-        if (registrationForSave != null) {
-            registrationForSave.remove();
-        }
-        registrationForSave = saveButton
-                .addClickListener(e -> saveClicked(operation));
-        binder.readBean(currentItem);
-
-        deleteButton.setEnabled(operation.isDeleteEnabled());
-        open();
-    }
-
-    private void saveClicked(Operation operation) {
-        boolean isValid = binder.writeBeanIfValid(currentItem);
-
-        if (isValid) {
-            itemSaver.accept(currentItem, operation);
-            close();
-        } else {
-            BinderValidationStatus<T> status = binder.validate();
-        }
-    }
-
-    private void deleteClicked() {
-        if (confirmationDialog.getElement().getParent() == null) {
-            getUI().ifPresent(ui -> ui.add(confirmationDialog));
-        }
-        confirmDelete();
-    }
-
-    protected abstract void confirmDelete();
-
-    /**
-     * Opens the confirmation dialog before deleting the current item.
-     *
-     * The dialog will display the given title and message(s), then call
-     * {@link #deleteConfirmed(Serializable)} if the Delete button is clicked.
-     *
-     * @param title
-     *            The title text
-     * @param message
-     *            Detail message (optional, may be empty)
-     * @param additionalMessage
-     *            Additional message (optional, may be empty)
-     */
-    protected final void openConfirmationDialog(String title, String message,
-            String additionalMessage) {
-        close();
-        confirmationDialog.open(title, message, additionalMessage, "Delete",
-                true, getCurrentItem(), this::deleteConfirmed,
-                this::open);
-    }
-
-    private void deleteConfirmed(T item) {
-        itemDeleter.accept(item);
-        close();
-    }
+  }
 }
