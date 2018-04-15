@@ -13,6 +13,7 @@ import com.vaadin.flow.component.charts.model.XAxis;
 public class DimplomaCharts {
 
   public static Chart getDemoChart() {
+
     Chart chart = new Chart(ChartType.COLUMN);
 
     Configuration conf = chart.getConfiguration();
