@@ -29,6 +29,7 @@ import com.vaadin.starter.beveragebuddy.ui.views.charts.DimplomaCharts;
 
 import static com.vaadin.starter.beveragebuddy.ui.views.charts.DimplomaCharts.getCountToIpChart;
 import static com.vaadin.starter.beveragebuddy.ui.views.charts.DimplomaCharts.pieChart;
+import static com.vaadin.starter.beveragebuddy.ui.views.charts.DimplomaCharts.visualizationOfActivity;
 
 
 /**
@@ -49,7 +50,12 @@ public class CategoriesList extends VerticalLayout {
   public CategoriesList() {
     VerticalLayout container = new VerticalLayout();
     container.setSizeFull();
-    initContent(this);
+    container.setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
+
+//    container.setClassName("view-container");
+//    container.setAlignItems(Alignment.STRETCH);
+    initView();
+    initContent(container);
 
     add(container);
   }
@@ -60,7 +66,7 @@ public class CategoriesList extends VerticalLayout {
     main.setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
 
     main.add(getRow(getCountToIpChart()));
-    main.add(getRow(pieChart(),pieChart()));
+    main.add(getRow(pieChart(), visualizationOfActivity()));
     wall.add(main);
   }
 
@@ -69,11 +75,11 @@ public class CategoriesList extends VerticalLayout {
   }
 
 
-//  private void initView() {
-//    addClassName("categories-list");
-//    setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
-//    setSizeFull();
-//  }
+  private void initView() {
+    addClassName("categories-list");
+    setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
+    setSizeFull();
+  }
 
 //  private void addSearchBar() {
 //    Div viewToolbar = new Div();
