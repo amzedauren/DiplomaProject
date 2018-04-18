@@ -49,12 +49,7 @@ public class CategoriesList extends VerticalLayout {
   public CategoriesList() {
     VerticalLayout container = new VerticalLayout();
     container.setSizeFull();
-    container.setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
-
-//    container.setClassName("view-container");
-//    container.setAlignItems(Alignment.STRETCH);
-    initView();
-    initContent(container);
+    initContent(this);
 
     add(container);
   }
@@ -65,7 +60,7 @@ public class CategoriesList extends VerticalLayout {
     main.setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
 
     main.add(getRow(getCountToIpChart()));
-    main.add(getRow(pieChart()));
+    main.add(getRow(pieChart(),pieChart()));
     wall.add(main);
   }
 
@@ -74,11 +69,11 @@ public class CategoriesList extends VerticalLayout {
   }
 
 
-  private void initView() {
-    addClassName("categories-list");
-    setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
-    setSizeFull();
-  }
+//  private void initView() {
+//    addClassName("categories-list");
+//    setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
+//    setSizeFull();
+//  }
 
 //  private void addSearchBar() {
 //    Div viewToolbar = new Div();
