@@ -1,30 +1,28 @@
 package com.vaadin.starter.beveragebuddy.ui.views.charts;
 
 import com.vaadin.flow.component.charts.Chart;
-import com.vaadin.flow.component.charts.model.ChartType;
-import com.vaadin.flow.component.charts.model.Configuration;
-import com.vaadin.flow.component.charts.model.Credits;
-import com.vaadin.flow.component.charts.model.ListSeries;
-import com.vaadin.flow.component.charts.model.PlotOptionsColumn;
-import com.vaadin.flow.component.charts.model.Title;
-import com.vaadin.flow.component.charts.model.Tooltip;
-import com.vaadin.flow.component.charts.model.XAxis;
+import com.vaadin.flow.component.charts.model.*;
+
+import java.util.*;
 
 public class DimplomaCharts {
 
-  public static Chart getDemoChart() {
+  public static Chart getCountToIpChart() {
 
     Chart chart = new Chart(ChartType.COLUMN);
 
     Configuration conf = chart.getConfiguration();
-    conf.setTitle(new Title("Column chart with negative values"));
-
+    conf.setTitle(new Title("Column chart count of attacks with same IPv4"));
     PlotOptionsColumn column = new PlotOptionsColumn();
     column.setMinPointLength(3);
     conf.setPlotOptions(column);
-
     XAxis xAxis = new XAxis();
-    xAxis.setCategories("Apples", "Oranges", "Pears", "Grapes", "Bananas");
+    String []ips = new String[100];
+    Random rnd = new Random();
+    for(int i = 0; i < 100; i++)
+      ips[i] = ("192.168.1." +  rnd.nextInt(255));
+
+    xAxis.setCategories(ips);
     conf.addxAxis(xAxis);
 
     Tooltip tooltip = new Tooltip();
@@ -34,9 +32,17 @@ public class DimplomaCharts {
 
     conf.setCredits(new Credits(false));
 
-    conf.addSeries(new ListSeries("John", 5, 0.1, 4, 7, 2));
-    conf.addSeries(new ListSeries("Jane", 2, -2, -0.1, 2, 1));
-    conf.addSeries(new ListSeries("Joe", 3, 4, 4, -2, 5));
+    List<Number> numbers = new ArrayList<>();
+    for(int i = 0; i < 100; i++)
+      numbers.add(new Random().nextInt(100));
+    numbers.sort((o1, o2) -> Integer.compare(o2.intValue(), o1.intValue()));
+
+    YAxis y = new YAxis();
+    y.setMin(0);
+    y.setTitle("Count");
+    conf.addyAxis(y);
+
+    conf.addSeries(new ListSeries("ip", numbers));
 
     return chart;
   }
