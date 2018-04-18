@@ -29,6 +29,7 @@ import com.vaadin.starter.beveragebuddy.ui.views.charts.DimplomaCharts;
 
 import static com.vaadin.starter.beveragebuddy.ui.views.charts.DimplomaCharts.getCountToIpChart;
 import static com.vaadin.starter.beveragebuddy.ui.views.charts.DimplomaCharts.pieChart;
+import static com.vaadin.starter.beveragebuddy.ui.views.charts.DimplomaCharts.visualizationOfActivity;
 
 
 /**
@@ -65,7 +66,7 @@ public class CategoriesList extends VerticalLayout {
     main.setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
 
     main.add(getRow(getCountToIpChart()));
-    main.add(getRow(pieChart()));
+    main.add(getRow(pieChart(), visualizationOfActivity()));
     wall.add(main);
   }
 
