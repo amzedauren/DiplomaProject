@@ -47,4 +47,38 @@ public class DimplomaCharts {
     return chart;
   }
 
+  public static Chart pieChart() {
+
+    Chart chart = new Chart(ChartType.PIE);
+    Configuration conf = chart.getConfiguration();
+
+    conf.setTitle("Visualiztion of victims' ports");
+
+    Tooltip tooltip = new Tooltip();
+    tooltip.setValueDecimals(1);
+    tooltip.setPointFormat("{series.name}: <b>{point.percentage}%</b>");
+    conf.setTooltip(tooltip);
+
+    PlotOptionsPie plotOptions = new PlotOptionsPie();
+    plotOptions.setAllowPointSelect(true);
+    plotOptions.setCursor(Cursor.POINTER);
+    plotOptions.setShowInLegend(true);
+    conf.setPlotOptions(plotOptions);
+
+    DataSeries series = new DataSeries();
+    series.add(new DataSeriesItem("135", 45.0));
+    series.add(new DataSeriesItem("80", 26.8));
+    DataSeriesItem chrome = new DataSeriesItem("110", 12.8);
+    chrome.setSliced(true);
+    chrome.setSelected(true);
+    series.add(chrome);
+    series.add(new DataSeriesItem("105", 8.5));
+    series.add(new DataSeriesItem("21", 6.2));
+    series.add(new DataSeriesItem("143", 0.7));
+    conf.setSeries(series);
+    chart.setVisibilityTogglingDisabled(true);
+
+    return chart;
+  }
+
 }
