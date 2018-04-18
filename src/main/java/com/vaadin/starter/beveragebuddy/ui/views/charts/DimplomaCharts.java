@@ -96,9 +96,9 @@ public class DimplomaCharts {
       "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
 
     YAxis yAxis = configuration.getyAxis();
-    yAxis.setMin(-10d);
+    yAxis.setMin(0d);
     yAxis.setMax(30d);
-    yAxis.setTitle(new AxisTitle("Caount of Activity"));
+    yAxis.setTitle(new AxisTitle("Count of Activity"));
     yAxis.getTitle().setAlign(VerticalAlign.HIGH);
 
     configuration.getTooltip().setFormatter(
