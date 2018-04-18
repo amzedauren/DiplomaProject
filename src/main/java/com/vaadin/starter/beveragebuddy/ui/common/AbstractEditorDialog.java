@@ -65,6 +65,7 @@ public abstract class AbstractEditorDialog<T extends Serializable>
   private Registration registrationForSave;
   private Binder<T> binder = new Binder<>();
   private T currentItem;
+
   /**
    * Constructs a new instance.
    *

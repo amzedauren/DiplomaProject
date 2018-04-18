@@ -17,10 +17,10 @@ public class DimplomaCharts {
     column.setMinPointLength(3);
     conf.setPlotOptions(column);
     XAxis xAxis = new XAxis();
-    String []ips = new String[100];
+    String[] ips = new String[100];
     Random rnd = new Random();
-    for(int i = 0; i < 100; i++)
-      ips[i] = ("192.168.1." +  rnd.nextInt(255));
+    for (int i = 0; i < 100; i++)
+      ips[i] = ("192.168.1." + rnd.nextInt(255));
 
     xAxis.setCategories(ips);
     conf.addxAxis(xAxis);
@@ -33,7 +33,7 @@ public class DimplomaCharts {
     conf.setCredits(new Credits(false));
 
     List<Number> numbers = new ArrayList<>();
-    for(int i = 0; i < 100; i++)
+    for (int i = 0; i < 100; i++)
       numbers.add(new Random().nextInt(100));
     numbers.sort((o1, o2) -> Integer.compare(o2.intValue(), o1.intValue()));
 

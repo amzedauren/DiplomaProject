@@ -16,6 +16,7 @@ public class CategoryService {
 
   private Map<Long, Category> categories = new HashMap<>();
   private AtomicLong nextId = new AtomicLong(0);
+
   /**
    * Declared private to ensure uniqueness of this Singleton.
    */

@@ -20,6 +20,7 @@ public class ReviewService {
 
   private Map<Long, Review> reviews = new HashMap<>();
   private AtomicLong nextId = new AtomicLong(0);
+
   /**
    * Declared private to ensure uniqueness of this Singleton.
    */

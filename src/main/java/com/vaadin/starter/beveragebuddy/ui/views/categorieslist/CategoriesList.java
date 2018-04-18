@@ -68,7 +68,7 @@ public class CategoriesList extends VerticalLayout {
     wall.add(main);
   }
 
-  private HorizontalLayout getRow(Component ... components) {
+  private HorizontalLayout getRow(Component... components) {
     return new HorizontalLayout(components);
   }
 
