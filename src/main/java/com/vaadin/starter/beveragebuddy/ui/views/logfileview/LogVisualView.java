@@ -13,32 +13,41 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.vaadin.starter.beveragebuddy.ui.views.categorieslist;
+package com.vaadin.starter.beveragebuddy.ui.views.logfileview;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import com.vaadin.starter.beveragebuddy.backend.Category;
+import com.vaadin.flow.router.*;
 import com.vaadin.starter.beveragebuddy.ui.MainLayout;
-import com.vaadin.starter.beveragebuddy.ui.views.charts.DimplomaCharts;
 
-import static com.vaadin.starter.beveragebuddy.ui.views.charts.DimplomaCharts.getCountToIpChart;
-import static com.vaadin.starter.beveragebuddy.ui.views.charts.DimplomaCharts.pieChart;
-import static com.vaadin.starter.beveragebuddy.ui.views.charts.DimplomaCharts.visualizationOfActivity;
+import static com.vaadin.starter.beveragebuddy.ui.views.charts.ChartTemplates.getCountToIpChart;
+import static com.vaadin.starter.beveragebuddy.ui.views.charts.ChartTemplates.pieChart;
+import static com.vaadin.starter.beveragebuddy.ui.views.charts.ChartTemplates.visualizationOfActivity;
 
 
 /**
  * Displays the list of available categories, with a search filter as well as
  * buttons to add a new category or edit existing ones.
  */
-@Route(value = "categories", layout = MainLayout.class)
+@Route(value = "log", layout = MainLayout.class)
 @PageTitle("Categories List")
-public class CategoriesList extends VerticalLayout {
+public class LogVisualView extends VerticalLayout implements HasUrlParameter<String> {
+
+  private String logFileName = null;
+  @Override
+  public void setParameter(BeforeEvent event,
+                           @OptionalParameter String fileName) {
+    if(fileName == null){
+      Div div = new Div();
+      div.setText("file not selected");
+      add(div);
+    } else {
+      this.logFileName = fileName;
+      initView();
+    }
+  }
 
 //  private final TextField searchField = new TextField("", "Search categories");
 //  private final H2 header = new H2("Categories");
@@ -47,18 +56,10 @@ public class CategoriesList extends VerticalLayout {
 //  private final CategoryEditorDialog form = new CategoryEditorDialog(
 //    this::saveCategory, this::deleteCategory);
 
-  public CategoriesList() {
-    VerticalLayout container = new VerticalLayout();
-    container.setSizeFull();
-    container.setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
+  public LogVisualView() {
 
-//    container.setClassName("view-container");
-//    container.setAlignItems(Alignment.STRETCH);
-    initView();
-    initContent(container);
-
-    add(container);
   }
+
 
   private void initContent(VerticalLayout wall) {
     VerticalLayout main = new VerticalLayout();
@@ -71,7 +72,9 @@ public class CategoriesList extends VerticalLayout {
   }
 
   private HorizontalLayout getRow(Component... components) {
-    return new HorizontalLayout(components);
+    HorizontalLayout horizontalLayout = new HorizontalLayout(components);
+    horizontalLayout.setSizeFull();
+    return horizontalLayout;
   }
 
 
@@ -79,6 +82,17 @@ public class CategoriesList extends VerticalLayout {
     addClassName("categories-list");
     setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
     setSizeFull();
+
+    VerticalLayout container = new VerticalLayout();
+    container.setSizeFull();
+    container.setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
+
+//    container.setClassName("view-container");
+//    container.setAlignItems(Alignment.STRETCH);
+    initContent(container);
+
+    add(container);
+
   }
 
 //  private void addSearchBar() {

@@ -49,82 +49,69 @@ import com.vaadin.starter.beveragebuddy.ui.views.reviewslist.ReviewsList.Reviews
  * Implemented using a simple template.
  */
 @Route(value = "", layout = MainLayout.class)
-@PageTitle("Review List")
+@PageTitle("Home")
 @Tag("reviews-list")
 @HtmlImport("frontend://src/views/reviewslist/reviews-list.html")
 public class ReviewsList extends PolymerTemplate<ReviewsModel> {
 
-  @Id("search")
-  private TextField search;
-  @Id("newReview")
-  private Button addReview;
-  @Id("header")
-  private H2 header;
-  private ReviewEditorDialog reviewForm = new ReviewEditorDialog(
-    this::saveUpdate, this::deleteUpdate);
+//  @Id("search")
+//  private TextField search;
+//  @Id("newReview")
+//  private Button addReview;
+//  @Id("header")
+//  private H2 header;
+//  private ReviewEditorDialog reviewForm = new ReviewEditorDialog(
+//    this::saveUpdate, this::deleteUpdate);
 
   public ReviewsList() {
-    search.setPlaceholder("Search reviews");
-    search.addValueChangeListener(e -> updateList());
-    search.setValueChangeMode(ValueChangeMode.EAGER);
-
-    addReview.addClickListener(e -> openForm(new Review(),
-      AbstractEditorDialog.Operation.ADD));
+//    search.setPlaceholder("Search reviews");
+//    search.addValueChangeListener(e -> updateList());
+//    search.setValueChangeMode(ValueChangeMode.EAGER);
+//
+//    addReview.addClickListener(e -> openForm(new Review(),
+//      AbstractEditorDialog.Operation.ADD));
 
     updateList();
-
   }
 
-  public void saveUpdate(Review review,
-                         AbstractEditorDialog.Operation operation) {
-    ReviewService.getInstance().saveReview(review);
-    updateList();
-    Notification.show(
-      "Beverage successfully " + operation.getNameInText() + "ed.",
-      3000, Position.BOTTOM_START);
-  }
-
-  public void deleteUpdate(Review review) {
-    ReviewService.getInstance().deleteReview(review);
-    updateList();
-    Notification.show("Beverage successfully deleted.", 3000,
-      Position.BOTTOM_START);
-  }
+//  public void saveUpdate(Review review,
+//                         AbstractEditorDialog.Operation operation) {
+//    ReviewService.getInstance().saveReview(review);
+//    updateList();
+//    Notification.show(
+//      "Beverage successfully " + operation.getNameInText() + "ed.",
+//      3000, Position.BOTTOM_START);
+//  }
+//
+//  public void deleteUpdate(Review review) {
+//    ReviewService.getInstance().deleteReview(review);
+//    updateList();
+//    Notification.show("Beverage successfully deleted.", 3000,
+//      Position.BOTTOM_START);
+//  }
 
   private void updateList() {
-    List<Review> reviews = ReviewService.getInstance()
-      .findReviews(search.getValue());
-    if (search.isEmpty()) {
-      header.setText("Reviews");
-      header.add(new Span(reviews.size() + " in total"));
-    } else {
-      header.setText("Search for “" + search.getValue() + "”");
-      if (!reviews.isEmpty()) {
-        header.add(new Span(reviews.size() + " results"));
-      }
-    }
+    List<Review> reviews = ReviewService.getInstance().getAll();
+//    if (search.isEmpty()) {
+//      header.setText("Reviews");
+//      header.add(new Span(reviews.size() + " in total"));
+//    } else {
+//      header.setText("Search for “" + search.getValue() + "”");
+//      if (!reviews.isEmpty()) {
+//        header.add(new Span(reviews.size() + " results"));
+//      }
+//    }
     getModel().setReviews(reviews);
   }
 
   @EventHandler
   private void edit(@ModelItem Review review) {
-    openForm(review, AbstractEditorDialog.Operation.EDIT);
-  }
 
-  private void openForm(Review review,
-                        AbstractEditorDialog.Operation operation) {
-    // Add the form lazily as the UI is not yet initialized when
-    // this view is constructed
-    if (reviewForm.getElement().getParent() == null) {
-      getUI().ifPresent(ui -> ui.add(reviewForm));
-    }
-    reviewForm.open(review, operation);
   }
 
   public interface ReviewsModel extends TemplateModel {
     @Encode(value = LongToStringEncoder.class, path = "id")
     @Encode(value = LocalDateToStringEncoder.class, path = "date")
-    @Encode(value = LongToStringEncoder.class, path = "category.id")
     void setReviews(List<Review> reviews);
   }
 

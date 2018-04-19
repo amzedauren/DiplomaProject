@@ -28,7 +28,6 @@ import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.server.PageConfigurator;
-import com.vaadin.starter.beveragebuddy.ui.views.categorieslist.CategoriesList;
 import com.vaadin.starter.beveragebuddy.ui.views.reviewslist.ReviewsList;
 
 /**
@@ -41,22 +40,22 @@ public class MainLayout extends Div
   implements RouterLayout, AfterNavigationObserver, PageConfigurator {
 
   private static final String ACTIVE_ITEM_STYLE = "main-layout__nav-item--selected";
-  private RouterLink categories;
+//  private RouterLink categories;
   private RouterLink reviews;
 
   public MainLayout() {
-    H2 title = new H2("Beverage Buddy");
+    H2 title = new H2("IDS/IPS Visualizer");
     title.addClassName("main-layout__title");
 
     reviews = new RouterLink(null, ReviewsList.class);
-    reviews.add(new Icon(VaadinIcons.LIST), new Text("Reviews"));
+    reviews.add(new Icon(VaadinIcons.LIST), new Text("Log files"));
     reviews.addClassName("main-layout__nav-item");
 
-    categories = new RouterLink(null, CategoriesList.class);
-    categories.add(new Icon(VaadinIcons.ARCHIVES), new Text("Categories"));
-    categories.addClassName("main-layout__nav-item");
+//    categories = new RouterLink(null, LogVisualView.class);
+//    categories.add(new Icon(VaadinIcons.ARCHIVES), new Text("Categories"));
+//    categories.addClassName("main-layout__nav-item");
 
-    Div navigation = new Div(reviews, categories);
+    Div navigation = new Div(reviews);
     navigation.addClassName("main-layout__nav");
 
     Div header = new Div(title, navigation);
@@ -72,10 +71,10 @@ public class MainLayout extends Div
     // (note that this is triggered even for the error view)
     String segment = event.getLocation().getFirstSegment();
     boolean reviewsActive = segment.equals(reviews.getHref());
-    boolean categoriesActive = segment.equals(categories.getHref());
+//    boolean categoriesActive = segment.equals(categories.getHref());
 
     reviews.setClassName(ACTIVE_ITEM_STYLE, reviewsActive);
-    categories.setClassName(ACTIVE_ITEM_STYLE, categoriesActive);
+//    categories.setClassName(ACTIVE_ITEM_STYLE, categoriesActive);
   }
 
   @Override

@@ -5,7 +5,7 @@ import com.vaadin.flow.component.charts.model.*;
 
 import java.util.*;
 
-public class DimplomaCharts {
+public class ChartTemplates {
 
   public static Chart getCountToIpChart() {
 
