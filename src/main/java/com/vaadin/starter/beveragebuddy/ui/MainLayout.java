@@ -15,66 +15,34 @@
  */
 package com.vaadin.starter.beveragebuddy.ui;
 
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcons;
 import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.RouterLayout;
-import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.server.PageConfigurator;
-import com.vaadin.starter.beveragebuddy.ui.views.reviewslist.ReviewsList;
 
-/**
- * The main layout contains the header with the navigation buttons, and the
- * child views below that.
- */
 @HtmlImport("frontend://styles/shared-styles.html")
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
 public class MainLayout extends Div
   implements RouterLayout, AfterNavigationObserver, PageConfigurator {
 
   private static final String ACTIVE_ITEM_STYLE = "main-layout__nav-item--selected";
-//  private RouterLink categories;
-  private RouterLink reviews;
 
   public MainLayout() {
     H2 title = new H2("IDS/IPS Visualizer");
     title.addClassName("main-layout__title");
-
-    reviews = new RouterLink(null, ReviewsList.class);
-    reviews.add(new Icon(VaadinIcons.LIST), new Text("Log files"));
-    reviews.addClassName("main-layout__nav-item");
-
-//    categories = new RouterLink(null, LogVisualView.class);
-//    categories.add(new Icon(VaadinIcons.ARCHIVES), new Text("Categories"));
-//    categories.addClassName("main-layout__nav-item");
-
-    Div navigation = new Div(reviews);
-    navigation.addClassName("main-layout__nav");
-
-    Div header = new Div(title, navigation);
+    Div header = new Div(title);
     header.addClassName("main-layout__header");
     add(header);
-
     addClassName("main-layout");
   }
 
   @Override
   public void afterNavigation(AfterNavigationEvent event) {
-    // updating the active menu item based on if either of views is active
-    // (note that this is triggered even for the error view)
-    String segment = event.getLocation().getFirstSegment();
-    boolean reviewsActive = segment.equals(reviews.getHref());
-//    boolean categoriesActive = segment.equals(categories.getHref());
-
-    reviews.setClassName(ACTIVE_ITEM_STYLE, reviewsActive);
-//    categories.setClassName(ACTIVE_ITEM_STYLE, categoriesActive);
   }
 
   @Override

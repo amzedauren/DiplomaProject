@@ -7,7 +7,7 @@ import java.util.*;
 
 public class ChartTemplates {
 
-  public static Chart getCountToIpChart() {
+  public static Chart getCountToIpChart(Map<String,Integer> map) {
 
     Chart chart = new Chart(ChartType.COLUMN);
 
@@ -17,11 +17,7 @@ public class ChartTemplates {
     column.setMinPointLength(3);
     conf.setPlotOptions(column);
     XAxis xAxis = new XAxis();
-    String[] ips = new String[100];
-    Random rnd = new Random();
-    for (int i = 0; i < 100; i++)
-      ips[i] = ("192.168.1." + rnd.nextInt(255));
-
+    String[] ips = map.keySet().toArray(new String[map.size()]);
     xAxis.setCategories(ips);
     conf.addxAxis(xAxis);
 
@@ -33,9 +29,10 @@ public class ChartTemplates {
     conf.setCredits(new Credits(false));
 
     List<Number> numbers = new ArrayList<>();
-    for (int i = 0; i < 100; i++)
-      numbers.add(new Random().nextInt(100));
-    numbers.sort((o1, o2) -> Integer.compare(o2.intValue(), o1.intValue()));
+    for (int i = 0; i < map.size(); i++)
+      numbers.add(map.get(ips[i]));
+
+//    numbers.sort((o1, o2) -> Integer.compare(o2.intValue(), o1.intValue()));
 
     YAxis y = new YAxis();
     y.setMin(0);
@@ -47,12 +44,16 @@ public class ChartTemplates {
     return chart;
   }
 
-  public static Chart pieChart() {
+  public static Chart pieChart(Map<String, Integer> portCount) {
+
+    int count = 0;
+    for(Integer i: portCount.values())
+      count += i;
 
     Chart chart = new Chart(ChartType.PIE);
     Configuration conf = chart.getConfiguration();
 
-    conf.setTitle("Visualiztion of victims' ports");
+    conf.setTitle("victims' ports");
 
     Tooltip tooltip = new Tooltip();
     tooltip.setValueDecimals(1);
@@ -66,15 +67,9 @@ public class ChartTemplates {
     conf.setPlotOptions(plotOptions);
 
     DataSeries series = new DataSeries();
-    series.add(new DataSeriesItem("135", 45.0));
-    series.add(new DataSeriesItem("80", 26.8));
-    DataSeriesItem chrome = new DataSeriesItem("110", 12.8);
-    chrome.setSliced(true);
-    chrome.setSelected(true);
-    series.add(chrome);
-    series.add(new DataSeriesItem("105", 8.5));
-    series.add(new DataSeriesItem("21", 6.2));
-    series.add(new DataSeriesItem("143", 0.7));
+    for(String port: portCount.keySet()) {
+      series.add(new DataSeriesItem(port, portCount.get(port) ));
+    }
     conf.setSeries(series);
     chart.setVisibilityTogglingDisabled(true);
 
@@ -84,6 +79,7 @@ public class ChartTemplates {
   public static Chart visualizationOfActivity() {
 
     Chart chart = new Chart();
+    chart.setHeight("300px");
     Configuration configuration = chart.getConfiguration();
     configuration.getChart().setType(ChartType.LINE);
     configuration.getChart().setMarginRight(130);
