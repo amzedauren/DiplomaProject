@@ -1,22 +1,6 @@
-/*
- * Copyright 2000-2017 Vaadin Ltd.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
+
 package com.vaadin.starter.beveragebuddy.ui.views.logfileview;
 
-import com.maxmind.geoip.Country;
-import com.maxmind.geoip.LookupService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.listbox.ListBox;
@@ -27,9 +11,7 @@ import com.vaadin.starter.beveragebuddy.backend.Review;
 import com.vaadin.starter.beveragebuddy.backend.ReviewService;
 import com.vaadin.starter.beveragebuddy.ui.MainLayout;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,22 +24,11 @@ import static com.vaadin.starter.beveragebuddy.ui.views.charts.ChartTemplates.vi
 @PageTitle("")
 public class LogVisualView extends VerticalLayout{
 
+
   private VerticalLayout details = new VerticalLayout();
 
   public LogVisualView() throws IOException {
     init();
-  }
-
-  public static void main(String[] args) throws IOException {
-    File dbfile = new File("C:\\Users\\Amze\\Documents\\IPDB\\GeoLite2-Country_20180501\\GeoLite2-Country.mmdb");
-    if(!dbfile.exists()) {
-      System.out.println("blat");
-      return;
-    }
-    LookupService cl = new LookupService(dbfile, LookupService.GEOIP_MEMORY_CACHE);
-
-    Country country = cl.getCountry("87.240.129.71");
-    System.out.println(country.getName());
   }
 
   private void init() throws IOException {
@@ -79,9 +50,8 @@ public class LogVisualView extends VerticalLayout{
 
     VerticalLayout right = new VerticalLayout();
     right.setSizeFull();
-    right.add(visualizationOfActivity());
+    right.add(getRow(true, visualizationOfActivity(ReviewService.getInstance().getActivityByMonth())));
     right.add(details);
-    details.setSizeFull();
 
     main.add(listBox);
     main.add(right);
@@ -95,17 +65,21 @@ public class LogVisualView extends VerticalLayout{
     details.removeAll();
 
     if(fileName.contains("snort")) {
-      details.add(getRow(getCountToIpChart(ReviewService.getInstance().getCountToIpDate(fileName))));
+      details.add(getRow(true, pieChart("Attacker Country",ReviewService.getInstance().getCountryCount(fileName))));
+      details.add(getRow(true,getCountToIpChart(ReviewService.getInstance().getCountIp(fileName))));
     } else {
-      details.add(getRow(pieChart(ReviewService.getInstance().getPortCount(fileName)), getCountToIpChart(ReviewService.getInstance().getCountToIpDate(fileName))));
+      details.add(getRow( false,
+        pieChart("Victim ports", ReviewService.getInstance().getPortCount(fileName)),
+        pieChart("Attacker Country", ReviewService.getInstance().getCountryCount(fileName))));
+      details.add(getRow(true,getCountToIpChart(ReviewService.getInstance().getCountIp(fileName))));
     }
-
 
   }
 
-  private HorizontalLayout getRow(Component... components) {
+  private HorizontalLayout getRow(boolean fullSize, Component... components) {
     HorizontalLayout horizontalLayout = new HorizontalLayout(components);
-    horizontalLayout.setSizeFull();
+    if(fullSize)
+      horizontalLayout.setSizeFull();
     return horizontalLayout;
   }
 

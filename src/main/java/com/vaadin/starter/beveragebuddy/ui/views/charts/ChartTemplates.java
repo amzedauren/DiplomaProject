@@ -2,22 +2,29 @@ package com.vaadin.starter.beveragebuddy.ui.views.charts;
 
 import com.vaadin.flow.component.charts.Chart;
 import com.vaadin.flow.component.charts.model.*;
+import com.vaadin.starter.beveragebuddy.backend.ReviewService;
+import com.vaadin.starter.beveragebuddy.backend.util.GeoIpUtil;
 
 import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public class ChartTemplates {
 
-  public static Chart getCountToIpChart(Map<String,Integer> map) {
+  public static Chart getCountToIpChart( Map<String,Integer> map) {
+
+    Map<String, Integer> newMapSortedByValue = map.entrySet().stream()
+      .sorted(Entry.<String,Integer>comparingByValue().reversed()).limit(50)
+      .collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
     Chart chart = new Chart(ChartType.COLUMN);
-
     Configuration conf = chart.getConfiguration();
     conf.setTitle(new Title("Column chart count of attacks with same IPv4"));
     PlotOptionsColumn column = new PlotOptionsColumn();
     column.setMinPointLength(3);
     conf.setPlotOptions(column);
     XAxis xAxis = new XAxis();
-    String[] ips = map.keySet().toArray(new String[map.size()]);
+    String[] ips = newMapSortedByValue.keySet().toArray(new String[newMapSortedByValue.size()]);
     xAxis.setCategories(ips);
     conf.addxAxis(xAxis);
 
@@ -28,32 +35,31 @@ public class ChartTemplates {
 
     conf.setCredits(new Credits(false));
 
-    List<Number> numbers = new ArrayList<>();
-    for (int i = 0; i < map.size(); i++)
-      numbers.add(map.get(ips[i]));
-
-//    numbers.sort((o1, o2) -> Integer.compare(o2.intValue(), o1.intValue()));
-
     YAxis y = new YAxis();
     y.setMin(0);
     y.setTitle("Count");
     conf.addyAxis(y);
+
+    List<Number> numbers = new ArrayList<>();
+    for (int i = 0; i < newMapSortedByValue.size(); i++)
+      numbers.add(newMapSortedByValue.get(ips[i]));
 
     conf.addSeries(new ListSeries("ip", numbers));
 
     return chart;
   }
 
-  public static Chart pieChart(Map<String, Integer> portCount) {
+  public static Chart pieChart(String title, Map<String, Integer> portCount) {
 
-    int count = 0;
-    for(Integer i: portCount.values())
-      count += i;
+    Map<String, Integer> newMapSortedByValue = portCount.entrySet().stream()
+      .sorted(Entry.<String,Integer>comparingByValue().reversed())
+      .collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
 
     Chart chart = new Chart(ChartType.PIE);
     Configuration conf = chart.getConfiguration();
 
-    conf.setTitle("victims' ports");
+    conf.setTitle(title);
 
     Tooltip tooltip = new Tooltip();
     tooltip.setValueDecimals(1);
@@ -67,8 +73,20 @@ public class ChartTemplates {
     conf.setPlotOptions(plotOptions);
 
     DataSeries series = new DataSeries();
-    for(String port: portCount.keySet()) {
-      series.add(new DataSeriesItem(port, portCount.get(port) ));
+    int count = 0;
+    int others = 0;
+    for(String port: newMapSortedByValue.keySet()) {
+      if(count > 100)
+        break;
+      if(count > 25) {
+        others += portCount.get(port);
+      } else {
+        series.add(new DataSeriesItem(port, portCount.get(port)));
+      }
+      count++;
+    }
+    if(others > 0) {
+      series.add(new DataSeriesItem("others", others));
     }
     conf.setSeries(series);
     chart.setVisibilityTogglingDisabled(true);
@@ -76,7 +94,8 @@ public class ChartTemplates {
     return chart;
   }
 
-  public static Chart visualizationOfActivity() {
+
+  public static Chart visualizationOfActivity(Map<ReviewService.LogType, Map<Integer, Integer>> map) {
 
     Chart chart = new Chart();
     chart.setHeight("300px");
@@ -93,7 +112,7 @@ public class ChartTemplates {
 
     YAxis yAxis = configuration.getyAxis();
     yAxis.setMin(0d);
-    yAxis.setMax(30d);
+    yAxis.setMax(100000d);
     yAxis.setTitle(new AxisTitle("Count of Activity"));
     yAxis.getTitle().setAlign(VerticalAlign.HIGH);
 
@@ -112,28 +131,35 @@ public class ChartTemplates {
 
     legend.setY(100d);
 
-    ListSeries ls = new ListSeries();
-    ls.setName("Snort");
-    ls.setData(7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3,
-      13.9, 9.6);
-    configuration.addSeries(ls);
-    ls = new ListSeries();
-    ls.setName("Amun");
-    ls.setData(0.2, 0.8, 5.7, 11.3, 17.0, 22.0, 24.8, 24.1, 20.1, 14.1,
-      8.6, 2.5);
-    configuration.addSeries(ls);
-    ls = new ListSeries();
-    ls.setName("Glastopf");
-    ls.setData(0.9, 0.6, 3.5, 8.4, 13.5, 17.0, 18.6, 17.9, 14.3, 9.0, 3.9,
-      1.0);
-    configuration.addSeries(ls);
-    ls = new ListSeries();
-    ls.setName("Dionaea");
-    ls.setData(3.9, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6,
-      4.8);
-    configuration.addSeries(ls);
+
+    for(ReviewService.LogType logType: map.keySet()) {
+      ListSeries ls = new ListSeries();
+      ls.setName(logType.name());
+      System.out.println(logType.name());
+      Map<Integer, Integer> tmp = map.get(logType);
+
+      ls.setData(tmp.get(0) == null ? 0 : tmp.get(0),
+        tmp.get(1) == null ? 0 : tmp.get(1),
+        tmp.get(2) == null ? 0 : tmp.get(2),
+        tmp.get(3) == null ? 0 : tmp.get(3),
+        tmp.get(4) == null ? 0 : tmp.get(4),
+        tmp.get(5) == null ? 0 : tmp.get(5),
+        tmp.get(6) == null ? 0 : tmp.get(6),
+        tmp.get(7) == null ? 0 : tmp.get(7),
+        tmp.get(8) == null ? 0 : tmp.get(8),
+        tmp.get(9) == null ? 0 : tmp.get(9),
+        tmp.get(10) == null ? 0 : tmp.get(10),
+        tmp.get(11) == null ? 0 : tmp.get(11));
+
+      configuration.addSeries(ls);
+    }
 
     return chart;
   }
 
+  public static void main(String[] args) {
+    Map<Integer, Integer> map = new HashMap<>();
+    System.out.println(map.get(0));
+
+  }
 }
