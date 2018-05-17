@@ -3,6 +3,7 @@ package com.vaadin.starter.beveragebuddy.ui.views.logfileview;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 
 import static com.vaadin.starter.beveragebuddy.ui.views.charts.ChartTemplates.getCountToIpChart;
 import static com.vaadin.starter.beveragebuddy.ui.views.charts.ChartTemplates.pieChart;
-import static com.vaadin.starter.beveragebuddy.ui.views.charts.ChartTemplates.visualizationOfActivity;
+
 
 
 @Route(value = "log", layout = MainLayout.class)
@@ -50,7 +51,7 @@ public class LogVisualView extends VerticalLayout{
 
     VerticalLayout right = new VerticalLayout();
     right.setSizeFull();
-    right.add(getRow(true, visualizationOfActivity(ReviewService.getInstance().getActivityByMonth())));
+//    right.add(getRow(true, visualizationOfActivity(ReviewService.getInstance().getActivityByMonth())));
     right.add(details);
 
     main.add(listBox);
@@ -74,6 +75,15 @@ public class LogVisualView extends VerticalLayout{
       details.add(getRow(true,getCountToIpChart(ReviewService.getInstance().getCountIp(fileName))));
     }
 
+    Anchor link = new Anchor();
+    link.setTarget("_blank");
+    String filePAth = ReviewService.getInstance().nameToFileMap.get(fileName).getPath();
+    filePAth = filePAth.replace("\\", "\\\\");
+
+    link.setHref(String.format("http://localhost:5000/graph?filename=%s&type=ip", filePAth));
+    link.setText("attacker Ip to Victim ip graph");
+
+    details.add(link);
   }
 
   private HorizontalLayout getRow(boolean fullSize, Component... components) {
@@ -82,7 +92,6 @@ public class LogVisualView extends VerticalLayout{
       horizontalLayout.setSizeFull();
     return horizontalLayout;
   }
-
 
 
 }
